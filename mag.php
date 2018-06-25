@@ -56,7 +56,7 @@ function encode($param) {
     return substr_replace($output,'，',21,0);
 }
 function decode($param) {
-    $ifa = str_split($param,3);
+    $ifa = preg_split('//u',$param,null,PREG_SPLIT_NO_EMPTY);
     $output = '';
     foreach($ifa as $ia) {
         $output .= mantra2hex($ia);
