@@ -25,7 +25,12 @@ function splitinfohash($str,$isbin=0) {
     return str_split($str,3);
 }
 function magnet2infohash($mag) {
-    $maga = explode('&',explode('?',$mag)[1]);
+    $maga = explode('?',$mag);
+    if(count($maga)>1) {
+        $maga = explode('&',explode('?',$mag)[1]);
+    } else {
+        $maga = [];
+    }
     $return = '';
     foreach($maga as $mitem) {
         if(substr($mitem,0,2) == 'xt') {
@@ -48,12 +53,16 @@ function infohash2magnet($btih) {
 }
 function encode($param) {
     $iia = magnet2infohash($param);
-    $ifa = splitinfohash($iia);
-    $output = '';
-    foreach($ifa as $ia) {
-        $output .= hex2mantra($ia);
+    if($iia) {
+        $ifa = splitinfohash($iia);
+        $output = '';
+        foreach($ifa as $ia) {
+            $output .= hex2mantra($ia);
+        }
+        return substr_replace($output,'，',21,0);
+    } else {
+        return 'naive';
     }
-    return substr_replace($output,'，',21,0);
 }
 function decode($param) {
     $ifa = preg_split('//u',$param,null,PREG_SPLIT_NO_EMPTY);
@@ -61,7 +70,11 @@ function decode($param) {
     foreach($ifa as $ia) {
         $output .= mantra2hex($ia);
     }
-    return infohash2magnet(substr($output,0,40));
+    if(strlen($output)>39) {
+        return infohash2magnet(substr($output,0,40));
+    } else {
+        return 'naive';
+    }
 }
 function main_handler($event, $context) {
     $param = json_decode($event->body,true);
